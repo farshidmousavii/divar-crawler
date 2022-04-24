@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
-import csv
+import pandas as pd
+
+
 
 url = "https://api.divar.ir/v8/search/1/residential-rent"
 json = {"json_schema":{"category":{"value":"residential-rent"},"districts":{"vacancies":["195","654"]}},"last-post-date":1650519315954570}
@@ -21,21 +23,27 @@ while True :
         token = widget["data"]["token"]
         list_of_tokens.append(token)
         count += 1
+        if count >= 10 :
+            break   
+        print(count)
+    if count >= 10 :
+        break   
 
-    if count >= 200 :
-        break
 
-with open ("token.txt" , "w" , encoding="utf8") as file :
+with open ("token.txt" , "w" , encoding="utf-8") as file :
     file.write(",".join(list_of_tokens))
 
 
 url_list = [ f"https://divar.ir/v/-/{token}" for token in list_of_tokens]
 
+result = []
+n =1
 for url in url_list :
     response = requests.get(url)
     soup = BeautifulSoup(response.content , "html.parser")
     information = soup.find_all("span" , class_="kt-group-row-item__value")
     price = soup.find_all("p" , class_ ="kt-unexpandable-row__value")
+    desciption = soup.find("p" , class_ = "kt-description-row__text post-description kt-description-row__text--primary").getText()
     deposit = price[0].getText()
     rent = price[1].getText()
     area = information[0].getText()
@@ -45,22 +53,21 @@ for url in url_list :
     pariking = False if "ندارد" in information[4].getText() else True
     warehouse = False if "ندارد" in information[5].getText() else True
 
+    result.append({
+        "deposit": deposit,
+        "rent" : rent ,
+        "area" : area ,
+        "construction" : construction,
+        "rooms" : rooms ,
+        "elevator" : elevator ,
+        "pariking" : pariking ,
+        "warehouse" : warehouse,
+        "desciption" : desciption,
+    })
+    print ( n ,f"Crawling {url}" )
+    n +=1
+df = pd.DataFrame(result)
+df.to_csv("result.csv" , encoding="utf-8-sig")   
+
+
     
-    with open ("result.csv" , "w") as file :
-        wirter = csv.writer(file)
-        wirter.writerow(row=["deposit",
-                        "rent",
-                        "area",
-                        "construction",
-                        "rooms",
-                        "elevator",
-                        "pariking",
-                        "warehouse"])
-        wirter.writerows(row=[deposit,
-                        rent,
-                        area,
-                        construction,
-                        rooms,
-                        elevator,
-                        pariking,
-                        warehouse,])
