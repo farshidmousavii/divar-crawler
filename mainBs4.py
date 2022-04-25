@@ -54,15 +54,16 @@ for url in url_list :
     warehouse = False if "ندارد" in information[5].getText() else True
 
     result.append({
-        "deposit": deposit,
-        "rent" : rent ,
-        "area" : area ,
-        "construction" : construction,
-        "rooms" : rooms ,
-        "elevator" : elevator ,
-        "pariking" : pariking ,
-        "warehouse" : warehouse,
-        "desciption" : desciption,
+        "پول پیش": deposit,
+        "اجاره" : rent ,
+        "متراژ" : area ,
+        "سال ساخت" : construction,
+        "تعداد اتاق" : rooms ,
+        "آسانسور" : elevator ,
+        "پارکینگ" : pariking ,
+        "نباری" : warehouse,
+        "توضیحات" : desciption,
+        "لینک" : url,
     })
     print ( n ,f"Crawling {url}" )
     n +=1
